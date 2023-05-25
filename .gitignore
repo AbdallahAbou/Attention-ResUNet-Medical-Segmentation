@@ -1,0 +1,24 @@
+# Python virtual environment
+venv/
+.venv/
+
+# VScode workspace config
+.vscode/
+
+# Image files in NRRD format
+*.nrrd
+
+# Hidden ipynb
+.*.ipynb
+
+# pycache files
+*.pyc
+
+# token
+*.tok
+
+# Misc files to ignore
+Thumbs.db
+.DS_Store
+*.tmp
+nohup.out
