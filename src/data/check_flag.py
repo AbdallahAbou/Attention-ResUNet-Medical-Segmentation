@@ -48,3 +48,4 @@ def reset_flag_status(flag_file_path):
     # Overwrite the flag file with '0'
     with open(flag_file_path, 'w') as f:
         f.write('0')
+  
