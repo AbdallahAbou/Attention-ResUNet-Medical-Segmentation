@@ -6,9 +6,19 @@ Description
 
 Example call
 main.py /job /download /output /datasets
+
+python main.py --ScratchDir ./job --DownloadDir ./download --OutputDir ./output --DataDir ./dataset
+
 """
 import os
 import argparse
+from src.data.download_and_prepare_data import download_and_prepare_data
+from src.data.process_data import process_all_data
+from src.data.data_loader import MedicalDataset
+from src.data.check_flag import check_flag_status, set_flag_status
+from src.models.train_model import train_model
+import torch
+from torch.utils.data import DataLoader, Subset
 
 # Create parser
 parser = argparse.ArgumentParser(
@@ -42,8 +52,8 @@ parser.add_argument(
     "--DataDir",
     type=str,
     nargs="?",
-    default="./data",
-    help="Sets datasets directory. Provided by slurm when using BMI cluster. Leave empty for testing. Defaults to ./data",
+    default="./dataset",
+    help="Sets datasets directory. Provided by slurm when using BMI cluster. Leave empty for testing. Defaults to ./dataset",
 )
 parser.add_argument(
     "--Tasks",
@@ -110,3 +120,50 @@ print(f"The number of CPUs per task is:\t\t{cpus_per_task}", flush=True)
 print(f"The number of GPUs available is:\t{gpus}", flush=True)
 print(f"The amount of RAM available is:\t\t{mem}", flush=True)
 print(f"The arguments passed via WeS3:\t\t{user_args}", flush=True)
+
+# Define directories for processing the data
+raw_data_dirs = [
+    "./dataset/raw/Task03_Liver/imagesTr",
+    "./dataset/raw/Task03_Liver/imagesTs",
+    "./dataset/raw/Task08_HepaticVessel/imagesTr",
+    "./dataset/raw/Task08_HepaticVessel/imagesTs",
+]
+
+processed_data_dirs = [
+    "./dataset/processed/Task03_Liver/imagesTr",
+    "./dataset/processed/Task03_Liver/imagesTs",
+    "./dataset/processed/Task08_HepaticVessel/imagesTr",
+    "./dataset/processed/Task08_HepaticVessel/imagesTs"
+]
+
+liver_labels_dir = "./dataset/raw/Task03_Liver/labelsTr"
+liver_train_dir = "./dataset/processed/Task03_Liver/imagesTr"
+
+vessels_labels_dir = "./dataset/raw/Task08_HepaticVessel/labelsTr"
+vessels_train_dir = "./dataset/processed/Task08_HepaticVessel/imagesTr"
+
+liver_model_save_path = "./models/liver_model.pth"
+vessel_model_save_path = "./models/vessel_model.pth"
+
+flag_dir = './dataset/flag.txt'
+
+
+
+# Call functions to download data and process it
+if check_flag_status(flag_dir) == False:
+    download_and_prepare_data(download_dir, os.path.join(datasets_dir, 'raw'))
+    process_all_data(raw_data_dirs, processed_data_dirs)
+    set_flag_status(flag_dir)
+
+print('Data already processed')
+
+# Train the model on the liver dataset first
+train_model(liver_train_dir, liver_labels_dir, liver_model_save_path, val_split=0.2, num_epochs=1, learning_rate=1e-4)
+
+# After training on liver data, the model is saved at model_save_path
+print('Model trained on liver data and saved.')
+
+# Train on the vessel dataset using the pre-trained liver model
+train_model(vessels_train_dir, vessels_labels_dir, vessel_model_save_path, val_split=0.2, num_epochs=1, learning_rate=1e-4)
+
+print('Model trained on vessel data and saved.')
