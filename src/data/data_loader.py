@@ -43,4 +43,4 @@ def custom_collate_fn(batch):
     all_slices = torch.stack(all_slices)
     all_labels = torch.stack(all_labels)
 
-    return all_slices, all_labels
+    return all_slices, all_labels  
