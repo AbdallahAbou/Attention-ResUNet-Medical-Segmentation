@@ -177,6 +177,9 @@ def print_directory_structure(root_dir):
 
 if __name__ == "__main__":
     print_directory_structure(datasets_dir)
+    print_directory_structure(job_dir)
+    print_directory_structure(download_dir)
+    print_directory_structure(output_dir)
 
 print('We got here')
 
