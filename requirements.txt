@@ -1,0 +1,8 @@
+torc
+torchvision
+nibabel
+numpy
+matplotlib
+gdown
+scikit-learn
+argparse
