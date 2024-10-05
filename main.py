@@ -121,31 +121,39 @@ print(f"The number of GPUs available is:\t{gpus}", flush=True)
 print(f"The amount of RAM available is:\t\t{mem}", flush=True)
 print(f"The arguments passed via WeS3:\t\t{user_args}", flush=True)
 
+
+os.makedirs(os.path.join(datasets_dir, 'raw'), exist_ok=True)
+os.makedirs(os.path.join(datasets_dir, 'interim'), exist_ok=True)
+os.makedirs(os.path.join(datasets_dir, 'processed'), exist_ok=True)
+print("Directories ensured: ", os.path.join(datasets_dir, 'raw'), os.path.join(datasets_dir, 'interim'), os.path.join(datasets_dir, 'processed'))
+
+
+
 # Define directories for processing the data
 raw_data_dirs = [
-    "./dataset/raw/Task03_Liver/imagesTr",
-    "./dataset/raw/Task03_Liver/imagesTs",
-    "./dataset/raw/Task08_HepaticVessel/imagesTr",
-    "./dataset/raw/Task08_HepaticVessel/imagesTs",
+    os.path.join(datasets_dir, "raw/Task03_Liver/imagesTr"),
+    os.path.join(datasets_dir, "raw/Task03_Liver/imagesTs"),
+    os.path.join(datasets_dir, "raw/Task08_HepaticVessel/imagesTr"),
+    os.path.join(datasets_dir, "raw/Task08_HepaticVessel/imagesTs")
 ]
 
 processed_data_dirs = [
-    "./dataset/processed/Task03_Liver/imagesTr",
-    "./dataset/processed/Task03_Liver/imagesTs",
-    "./dataset/processed/Task08_HepaticVessel/imagesTr",
-    "./dataset/processed/Task08_HepaticVessel/imagesTs"
+    os.path.join(datasets_dir, "processed/Task03_Liver/imagesTr"),
+    os.path.join(datasets_dir, "processed/Task03_Liver/imagesTs"),
+    os.path.join(datasets_dir, "processed/Task08_HepaticVessel/imagesTr"),
+    os.path.join(datasets_dir, "processed/Task08_HepaticVessel/imagesTs")
 ]
 
-liver_labels_dir = "./dataset/raw/Task03_Liver/labelsTr"
-liver_train_dir = "./dataset/processed/Task03_Liver/imagesTr"
+liver_labels_dir = os.path.join(datasets_dir,"raw/Task03_Liver/labelsTr")
+liver_train_dir = os.path.join(datasets_dir,"processed/Task03_Liver/imagesTr")
 
-vessels_labels_dir = "./dataset/raw/Task08_HepaticVessel/labelsTr"
-vessels_train_dir = "./dataset/processed/Task08_HepaticVessel/imagesTr"
+vessels_labels_dir = os.path.join(datasets_dir,"raw/Task08_HepaticVessel/labelsTr")
+vessels_train_dir = os.path.join(datasets_dir,"processed/Task08_HepaticVessel/imagesTr")
 
 liver_model_save_path = "./models/liver_model.pth"
 vessel_model_save_path = "./models/vessel_model.pth"
 
-flag_dir = './dataset/flag.txt'
+flag_dir = os.path.join(datasets_dir, 'dataset/flag.txt')
 
 
 
