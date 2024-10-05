@@ -36,7 +36,7 @@ def extract_tar_file(tar_file_path, extract_to):
         print(f"Extracted {tar_file_path} to {extract_to}")
 
 # Function to download and extract all files
-def download_and_prepare_data(download_dir, extract_dir):
+def download_and_prepare_data(download_dir, extract_dir, extract_only=None):
     """
     Downloads and extracts all required data files.
 
@@ -58,10 +58,14 @@ def download_and_prepare_data(download_dir, extract_dir):
             'output': os.path.join(download_dir, 'liver.tar')
         }
     }
-
+    if extract_only == True:
+        for file_key, file_info in files_to_download.items():
+            extract_tar_file(file_info['output'], extract_dir)
+    
     # Download and extract the files
-    for file_key, file_info in files_to_download.items():
-        download_file(file_info['url'], file_info['output'])
-        extract_tar_file(file_info['output'], extract_dir)
+    else:
+        for file_key, file_info in files_to_download.items():
+            download_file(file_info['url'], file_info['output'])
+            extract_tar_file(file_info['output'], extract_dir)
 
 
