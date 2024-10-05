@@ -158,10 +158,21 @@ flag_dir = os.path.join(datasets_dir, 'flag.txt')
 def print_directory_structure(root_dir):
     for dirpath, dirnames, filenames in os.walk(root_dir):
         print(f"Directory: {dirpath}")
-        for dirname in dirnames:
-            print(f"Subdirectory: {dirname}")
-        for filename in filenames:
-            print(f"File: {filename}")
+        
+        if dirnames:
+            print("Subdirectories:")
+            for dirname in dirnames:
+                print(f" - {dirname}")
+        else:
+            print("No subdirectories.")
+        
+        if filenames:
+            print("Files:")
+            for filename in filenames:
+                print(f" - {filename}")
+        else:
+            print("No files found.")
+        
         print("\n")
 
 if __name__ == "__main__":
