@@ -7,8 +7,8 @@
 # bash setup.sh /job /download /output /datasets
 ##############################
 
-JOB_DIR=${1:-"./"}
-DOWNLOAD_DIR=${2:-"./"}
+JOB_DIR=${1:-"./job"}
+DOWNLOAD_DIR=${2:-"./download"}
 OUTPUT_DIR=${3:-"./output"}
 DATASETS_DIR=${4:-"./dataset"}
 
