@@ -153,25 +153,37 @@ vessels_train_dir = os.path.join(datasets_dir,"processed/Task08_HepaticVessel/im
 liver_model_save_path = "./models/liver_model.pth"
 vessel_model_save_path = "./models/vessel_model.pth"
 
-flag_dir = os.path.join(datasets_dir, 'dataset/flag.txt')
+flag_dir = os.path.join(datasets_dir, 'flag.txt')
 
+def print_directory_structure(root_dir):
+    for dirpath, dirnames, filenames in os.walk(root_dir):
+        print(f"Directory: {dirpath}")
+        for dirname in dirnames:
+            print(f"Subdirectory: {dirname}")
+        for filename in filenames:
+            print(f"File: {filename}")
+        print("\n")
 
+if __name__ == "__main__":
+    print_directory_structure(datasets_dir)
+
+print('We got here')
 
 # Call functions to download data and process it
-if check_flag_status(flag_dir) == False:
-    download_and_prepare_data(download_dir, os.path.join(datasets_dir, 'raw'))
-    process_all_data(raw_data_dirs, processed_data_dirs)
-    set_flag_status(flag_dir)
+#if check_flag_status(flag_dir) == False:
+#    download_and_prepare_data(download_dir, os.path.join(datasets_dir, 'raw'))
+#    process_all_data(raw_data_dirs, processed_data_dirs)
+#    set_flag_status(flag_dir)
 
-print('Data already processed')
+#print('Data already processed')
 
 # Train the model on the liver dataset first
-train_model(liver_train_dir, liver_labels_dir, liver_model_save_path, val_split=0.2, num_epochs=1, learning_rate=1e-4)
+#train_model(liver_train_dir, liver_labels_dir, liver_model_save_path, val_split=0.2, num_epochs=1, learning_rate=1e-4)
 
 # After training on liver data, the model is saved at model_save_path
-print('Model trained on liver data and saved.')
+#print('Model trained on liver data and saved.')
 
 # Train on the vessel dataset using the pre-trained liver model
-train_model(vessels_train_dir, vessels_labels_dir, vessel_model_save_path, val_split=0.2, num_epochs=1, learning_rate=1e-4)
+#train_model(vessels_train_dir, vessels_labels_dir, vessel_model_save_path, val_split=0.2, num_epochs=1, learning_rate=1e-4)
 
-print('Model trained on vessel data and saved.')
+#print('Model trained on vessel data and saved.')
