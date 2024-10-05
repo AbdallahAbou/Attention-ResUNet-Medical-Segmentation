@@ -181,15 +181,18 @@ if __name__ == "__main__":
     print_directory_structure(download_dir)
     print_directory_structure(output_dir)
 
-print('We got here')
+
 
 # Call functions to download data and process it
-#if check_flag_status(flag_dir) == False:
-#    download_and_prepare_data(download_dir, os.path.join(datasets_dir, 'raw'))
-#    process_all_data(raw_data_dirs, processed_data_dirs)
-#    set_flag_status(flag_dir)
+if check_flag_status(flag_dir) == False:
+    download_and_prepare_data(download_dir, os.path.join(datasets_dir, 'raw'), extract_only=True)
+    process_all_data(raw_data_dirs, processed_data_dirs)
+    set_flag_status(flag_dir)
 
-#print('Data already processed')
+print('Data already processed')
+
+
+print('We got here')
 
 # Train the model on the liver dataset first
 #train_model(liver_train_dir, liver_labels_dir, liver_model_save_path, val_split=0.2, num_epochs=1, learning_rate=1e-4)
