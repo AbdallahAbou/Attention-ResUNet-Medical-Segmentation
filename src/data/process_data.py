@@ -66,7 +66,8 @@ def process_files(input_dir, output_dir):
 
             # Save normalized data
             nib.save(nib.Nifti1Image(normalized_data, affine=None), output_path)
-            print(f"Processed and saved: {output_path} {count}/{len(files)}")
+            valid_files = [file for file in files if not file.startswith('._') and file.endswith(".nii.gz")]
+            print(f"Processed and saved: {output_path} {count}/{len(valid_files)}")
 
 def process_all_data(input_dirs, output_dirs):
 
