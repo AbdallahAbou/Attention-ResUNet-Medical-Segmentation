@@ -177,18 +177,17 @@ def print_directory_structure(root_dir):
 
 if __name__ == "__main__":
     print_directory_structure(datasets_dir)
-    print_directory_structure(job_dir)
     print_directory_structure(download_dir)
-    print_directory_structure(output_dir)
 
 
 
 # Call functions to download data and process it
-if check_flag_status(flag_dir) == False:
-    download_and_prepare_data(download_dir, os.path.join(datasets_dir, 'raw'), extract_only=True)
-    process_all_data(raw_data_dirs, processed_data_dirs)
-    set_flag_status(flag_dir)
+#if check_flag_status(flag_dir) == False:
+#    download_and_prepare_data(download_dir, os.path.join(datasets_dir, 'raw'), extract_only=True)
+#    process_all_data(raw_data_dirs, processed_data_dirs)
+#    set_flag_status(flag_dir)
 
+print('Flag status: ', check_flag_status(flag_dir))
 print('Data already processed')
 
 
