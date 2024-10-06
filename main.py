@@ -188,9 +188,9 @@ if check_flag_status(flag_dir) == False:
 print('Flag status: ', check_flag_status(flag_dir))
 print('Data already processed')
 
-if __name__ == "__main__":
-    print_directory_structure(datasets_dir)
-    print_directory_structure(download_dir)
+
+print_directory_structure(datasets_dir)
+print_directory_structure(download_dir)
 
 
 
