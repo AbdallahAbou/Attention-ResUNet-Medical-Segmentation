@@ -1,4 +1,4 @@
-torc
+torch
 torchvision
 nibabel
 numpy
