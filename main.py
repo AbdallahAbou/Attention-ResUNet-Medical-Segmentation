@@ -175,10 +175,32 @@ def print_directory_structure(root_dir):
         
         print("\n")
 
+# Function to check system-wide CUDA installation
+def check_system_cuda():
+    try:
+        # Running 'nvcc --version' command to get the system-wide CUDA version
+        cuda_version = os.popen('nvcc --version').read()
+        if "release" in cuda_version:
+            print("System-wide CUDA installation:")
+            print(cuda_version.split("\n")[-2])
+        else:
+            print("CUDA is not installed system-wide or 'nvcc' is not in the PATH.")
+    except Exception as e:
+        print(f"Error checking system-wide CUDA: {e}")
+
+# Function to check CUDA version used by PyTorch
+def check_pytorch_cuda():
+    if torch.cuda.is_available():
+        pytorch_cuda_version = torch.version.cuda
+        print(f"PyTorch is using CUDA version: {pytorch_cuda_version}")
+        print(f"Number of available GPUs: {torch.cuda.device_count()}")
+        print(f"CUDA device name: {torch.cuda.get_device_name(0)}")
+    else:
+        print("PyTorch is not using CUDA or no GPU is available.")
 
 # Call functions to download data and process it
 if check_flag_status(flag_dir) == False:
-    download_and_prepare_data(download_dir, os.path.join(datasets_dir, 'raw'), extract_only=True)
+    download_and_prepare_data(download_dir, os.path.join(datasets_dir, 'raw'))
     process_all_data(raw_data_dirs, processed_data_dirs)
     set_flag_status(flag_dir)
 else:
@@ -196,6 +218,6 @@ train_model(liver_train_dir, liver_labels_dir, liver_model_save_path, val_split=
 print('Model trained on liver data and saved.')
 
 # Train on the vessel dataset using the pre-trained liver model
-#train_model(vessels_train_dir, vessels_labels_dir, vessel_model_save_path, val_split=0.2, batch_size = 4, num_epochs=10, learning_rate=1e-4)
+train_model(vessels_train_dir, vessels_labels_dir, vessel_model_save_path, val_split=0.2, batch_size = 4, num_epochs=10, learning_rate=1e-4)
 
-#print('Model trained on vessel data and saved.')
+print('Model trained on vessel data and saved.')
