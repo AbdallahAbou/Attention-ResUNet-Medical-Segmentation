@@ -218,6 +218,6 @@ print_directory_structure(download_dir)
 #print('Model trained on liver data and saved.')
 
 # Train on the vessel dataset using the pre-trained liver model
-train_model(vessels_train_dir, vessels_labels_dir, vessel_model_save_path, val_split=0.2, batch_size = 4, num_epochs=10, learning_rate=1e-4)
+train_model(vessels_train_dir, vessels_labels_dir, vessel_model_save_path, val_split=0.2, batch_size = 1, num_epochs=10, learning_rate=1e-4)
 
 print('Model trained on vessel data and saved.')
