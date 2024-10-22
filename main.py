@@ -19,6 +19,7 @@ from src.data.check_flag import check_flag_status, set_flag_status
 from src.models.train_model import train_model
 import torch
 from torch.utils.data import DataLoader, Subset
+from src.data.preloader import preload
 
 # Create parser
 parser = argparse.ArgumentParser(
@@ -97,7 +98,8 @@ args = parser.parse_args()
 job_dir = args.ScratchDir
 download_dir = args.DownloadDir
 output_dir = args.OutputDir
-datasets_dir = args.DataDir
+#datasets_dir = args.DataDir
+datasets_dir = os.path.join(download_dir, 'dataset')
 tasks = args.Tasks
 cpus_per_task = args.CPUSPerTask
 gpus = args.GPUS
@@ -125,9 +127,28 @@ print(f"The arguments passed via WeS3:\t\t{user_args}", flush=True)
 os.makedirs(os.path.join(datasets_dir, 'raw'), exist_ok=True)
 os.makedirs(os.path.join(datasets_dir, 'interim'), exist_ok=True)
 os.makedirs(os.path.join(datasets_dir, 'processed'), exist_ok=True)
-print("Directories ensured: ", os.path.join(datasets_dir, 'raw'), os.path.join(datasets_dir, 'interim'), os.path.join(datasets_dir, 'processed'))
+os.makedirs(os.path.join(datasets_dir, 'preloaded'), exist_ok=True)
+print("Directories ensured: ", os.path.join(datasets_dir, 'raw'), os.path.join(datasets_dir, 'interim'), os.path.join(datasets_dir, 'processed'), os.path.join(datasets_dir, 'preloaded'))
 
-
+def print_directory_structure(root_dir):
+    for dirpath, dirnames, filenames in os.walk(root_dir):
+        print(f"Directory: {dirpath}")
+        
+        if dirnames:
+            print("Subdirectories:")
+            for dirname in dirnames:
+                print(f" - {dirname}")
+        else:
+            print("No subdirectories.")
+        
+        if filenames:
+            print("Files:")
+            for filename in filenames:
+                print(f" - {filename}")
+        else:
+            print("No files found.")
+        
+        print("\n")
 
 # Define directories for processing the data
 raw_data_dirs = [
@@ -150,64 +171,24 @@ liver_train_dir = os.path.join(datasets_dir,"processed/Task03_Liver/imagesTr")
 vessels_labels_dir = os.path.join(datasets_dir,"raw/Task08_HepaticVessel/labelsTr")
 vessels_train_dir = os.path.join(datasets_dir,"processed/Task08_HepaticVessel/imagesTr")
 
-liver_model_save_path = "./models/liver_model.pth"
-vessel_model_save_path = "./models/vessel_model.pth"
+liver_model_save_path = os.path.join(output_dir, "models/liver_model.pth")
+vessel_model_save_path = os.path.join(output_dir, "models/vessel_model.pth")
 
 flag_dir = os.path.join(datasets_dir, 'flag.txt')
 
-def print_directory_structure(root_dir):
-    for dirpath, dirnames, filenames in os.walk(root_dir):
-        print(f"Directory: {dirpath}")
-        
-        if dirnames:
-            print("Subdirectories:")
-            for dirname in dirnames:
-                print(f" - {dirname}")
-        else:
-            print("No subdirectories.")
-        
-        if filenames:
-            print("Files:")
-            for filename in filenames:
-                print(f" - {filename}")
-        else:
-            print("No files found.")
-        
-        print("\n")
-
-# Function to check system-wide CUDA installation
-def check_system_cuda():
-    try:
-        # Running 'nvcc --version' command to get the system-wide CUDA version
-        cuda_version = os.popen('nvcc --version').read()
-        if "release" in cuda_version:
-            print("System-wide CUDA installation:")
-            print(cuda_version.split("\n")[-2])
-        else:
-            print("CUDA is not installed system-wide or 'nvcc' is not in the PATH.")
-    except Exception as e:
-        print(f"Error checking system-wide CUDA: {e}")
-
-# Function to check CUDA version used by PyTorch
-def check_pytorch_cuda():
-    if torch.cuda.is_available():
-        pytorch_cuda_version = torch.version.cuda
-        print(f"PyTorch is using CUDA version: {pytorch_cuda_version}")
-        print(f"Number of available GPUs: {torch.cuda.device_count()}")
-        print(f"CUDA device name: {torch.cuda.get_device_name(0)}")
-    else:
-        print("PyTorch is not using CUDA or no GPU is available.")
+preloaded_path = os.path.join(datasets_dir, 'preloaded/liver_data_tensor.pth')
 
 # Call functions to download data and process it
 if check_flag_status(flag_dir) == False:
-    download_and_prepare_data(download_dir, os.path.join(datasets_dir, 'raw'))
+    download_and_prepare_data(download_dir, os.path.join(download_dir, 'raw'))
     process_all_data(raw_data_dirs, processed_data_dirs)
     set_flag_status(flag_dir)
 else:
     print('Data already processed')
 
+preload(vessels_train_dir, vessels_labels_dir, preloaded_path)
 
-print_directory_structure(datasets_dir)
+
 print_directory_structure(download_dir)
 
 
@@ -218,6 +199,6 @@ print_directory_structure(download_dir)
 #print('Model trained on liver data and saved.')
 
 # Train on the vessel dataset using the pre-trained liver model
-train_model(vessels_train_dir, vessels_labels_dir, vessel_model_save_path, val_split=0.2, batch_size = 1, num_epochs=10, learning_rate=1e-4)
+#train_model(vessels_train_dir, vessels_labels_dir, vessel_model_save_path, val_split=0.2, batch_size = 1, num_epochs=10, learning_rate=1e-4)
 
-print('Model trained on vessel data and saved.')
+#print('Model trained on vessel data and saved.')
