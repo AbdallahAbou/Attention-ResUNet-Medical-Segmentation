@@ -14,12 +14,9 @@ import os
 import argparse
 from src.data.download_and_prepare_data import download_and_prepare_data
 from src.data.process_data import process_all_data
-from src.data.data_loader import MedicalDataset
 from src.data.check_flag import check_flag_status, set_flag_status
 from src.models.train_model import train_model
-import torch
-from torch.utils.data import DataLoader, Subset
-from src.data.preloader import preload
+
 
 # Create parser
 parser = argparse.ArgumentParser(
@@ -127,8 +124,7 @@ print(f"The arguments passed via WeS3:\t\t{user_args}", flush=True)
 os.makedirs(os.path.join(datasets_dir, 'raw'), exist_ok=True)
 os.makedirs(os.path.join(datasets_dir, 'interim'), exist_ok=True)
 os.makedirs(os.path.join(datasets_dir, 'processed'), exist_ok=True)
-os.makedirs(os.path.join(datasets_dir, 'preloaded'), exist_ok=True)
-print("Directories ensured: ", os.path.join(datasets_dir, 'raw'), os.path.join(datasets_dir, 'interim'), os.path.join(datasets_dir, 'processed'), os.path.join(datasets_dir, 'preloaded'))
+print("Directories ensured: ", os.path.join(datasets_dir, 'raw'), os.path.join(datasets_dir, 'interim'), os.path.join(datasets_dir, 'processed'))
 
 def print_directory_structure(root_dir):
     for dirpath, dirnames, filenames in os.walk(root_dir):
@@ -171,14 +167,13 @@ liver_train_dir = os.path.join(datasets_dir,"processed/Task03_Liver/imagesTr")
 vessels_labels_dir = os.path.join(datasets_dir,"raw/Task08_HepaticVessel/labelsTr")
 vessels_train_dir = os.path.join(datasets_dir,"processed/Task08_HepaticVessel/imagesTr")
 
-liver_model_save_path = os.path.join(output_dir, "models/liver_model.pth")
-vessel_model_save_path = os.path.join(output_dir, "models/vessel_model.pth")
+liver_model_save_path = os.path.join(output_dir, "liver_model.pth")
+vessel_model_save_path = os.path.join(output_dir, "vessel_model.pth")
 
 flag_dir = os.path.join(datasets_dir, 'flag.txt')
 
-preloaded_path = os.path.join(datasets_dir, 'preloaded/liver_data_tensor.pth')
-
 # Call functions to download data and process it
+
 if check_flag_status(flag_dir) == False:
     download_and_prepare_data(download_dir, os.path.join(download_dir, 'raw'))
     process_all_data(raw_data_dirs, processed_data_dirs)
@@ -186,19 +181,9 @@ if check_flag_status(flag_dir) == False:
 else:
     print('Data already processed')
 
-preload(vessels_train_dir, vessels_labels_dir, preloaded_path)
-
 
 print_directory_structure(download_dir)
 
 
-# Train the model on the liver dataset first
-#train_model(liver_train_dir, liver_labels_dir, liver_model_save_path, val_split=0.2, batch_size = 4, num_epochs=10, learning_rate=1e-4)
 
-# After training on liver data, the model is saved at model_save_path
-#print('Model trained on liver data and saved.')
-
-# Train on the vessel dataset using the pre-trained liver model
-#train_model(vessels_train_dir, vessels_labels_dir, vessel_model_save_path, val_split=0.2, batch_size = 1, num_epochs=10, learning_rate=1e-4)
-
-#print('Model trained on vessel data and saved.')
+train_model(liver_train_dir, liver_labels_dir, liver_model_save_path, batch_size=32, num_epochs=50, learning_rate=1e-4) 
