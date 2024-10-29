@@ -12,10 +12,10 @@ python main.py --ScratchDir ./job --DownloadDir ./download --OutputDir ./output 
 """
 import os
 import argparse
-#from src.data.download_and_prepare_data import download_and_prepare_data
-#from src.data.process_data import process_all_data
-#from src.data.check_flag import check_flag_status, set_flag_status
-#from src.models.train_model import train_model
+from src.data.download_and_prepare_data import download_and_prepare_data
+from src.data.process_data import process_all_data
+from src.data.check_flag import check_flag_status, set_flag_status
+from src.models.train_model import train_model
 import requests
 
 # Create parser
@@ -104,7 +104,7 @@ mem = args.Mem
 user_args = args.UserArguments
 
 # Creating missing directories
-dirs = [job_dir, download_dir, output_dir, datasets_dir]
+dirs = [datasets_dir]
 for dir in dirs:
     os.makedirs(dir, exist_ok=True)
 
