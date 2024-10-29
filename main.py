@@ -16,7 +16,7 @@ from src.data.download_and_prepare_data import download_and_prepare_data
 from src.data.process_data import process_all_data
 from src.data.check_flag import check_flag_status, set_flag_status
 from src.models.train_model import train_model
-import requests
+
 
 # Create parser
 parser = argparse.ArgumentParser(
@@ -174,50 +174,12 @@ flag_dir = os.path.join(datasets_dir, 'flag.txt')
 
 
 
-def check_internet_connection():
-    url = "https://www.google.com"
-    try:
-        response = requests.get(url, timeout=5)
-        if response.status_code == 200:
-            print("Internet connection is available.")
-        else:
-            print(f"Connected but received status code {response.status_code}.")
-    except requests.ConnectionError:
-        print("No internet connection.")
-    except requests.Timeout:
-        print("Connection attempt timed out.")
-
-
-
-def check_pypi_connection():
-    url = "https://pypi.org"
-    try:
-        response = requests.get(url, timeout=5)
-        if response.status_code == 200:
-            print("Connection to PyPI is available.")
-        else:
-            print(f"Connected to PyPI but received status code {response.status_code}.")
-    except requests.ConnectionError:
-        print("No connection to PyPI.")
-    except requests.Timeout:
-        print("Connection to PyPI timed out.")
-
-print_directory_structure(download_dir)
-
-check_internet_connection()
-
-check_pypi_connection()
-
-
-
 
 
 
 
 
 # Call functions to download data and process it
-
-"""
 if check_flag_status(flag_dir) == False:
     download_and_prepare_data(download_dir, os.path.join(download_dir, 'raw'))
     process_all_data(raw_data_dirs, processed_data_dirs)
@@ -230,6 +192,7 @@ print_directory_structure(download_dir)
 
 
 
+
+
 train_model(liver_train_dir, liver_labels_dir, liver_model_save_path, batch_size=32, num_epochs=50, learning_rate=1e-4) 
 
-"""
