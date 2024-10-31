@@ -8,8 +8,8 @@ class MedicalSliceDataset(Dataset):
         self.image_dir = image_dir
         self.label_dir = label_dir
         self.ids_list = ids_list
-        self.image_files = sorted(os.listdir(image_dir))
-        self.label_files = sorted(os.listdir(label_dir))
+        self.image_files = sorted([file for file in os.listdir(image_dir) if not file.startswith('._') and file.endswith(".nii.gz")])
+        self.label_files = sorted([file for file in os.listdir(label_dir) if not file.startswith('._') and file.endswith(".nii.gz")])
         self.slices = self._get_slices()
 
     def _get_slices(self):
