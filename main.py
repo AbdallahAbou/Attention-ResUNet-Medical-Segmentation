@@ -161,7 +161,7 @@ processed_data_dirs = [
 ]
 
 liver_labels_dir = os.path.join(datasets_dir,"raw/Task03_Liver/labelsTr")
-liver_train_dir = os.path.join(datasets_dir,"processed/Task03_Liver/imagesTr")
+liver_train_dir = os.path.join(datasets_dir,"raw/Task03_Liver/imagesTr")
 
 vessels_labels_dir = os.path.join(datasets_dir,"raw/Task08_HepaticVessel/labelsTr")
 vessels_train_dir = os.path.join(datasets_dir,"processed/Task08_HepaticVessel/imagesTr")
@@ -175,7 +175,7 @@ flag_dir = os.path.join(datasets_dir, 'flag.txt')
 # Call functions to download data and process it
 if check_flag_status(flag_dir) == False:
     download_and_prepare_data(download_dir, os.path.join(datasets_dir, 'raw'))
-    process_all_data(raw_data_dirs, processed_data_dirs)
+    #process_all_data(raw_data_dirs, processed_data_dirs)
     set_flag_status(flag_dir)
 else:
     print('Data already processed')
@@ -187,6 +187,5 @@ print_directory_structure(download_dir)
 print('ok')
 
 
-train_model(liver_train_dir, liver_labels_dir, liver_model_save_path, batch_size=32, num_epochs=30, learning_rate=1e-4) 
-
+train_model(liver_train_dir, liver_labels_dir, liver_model_save_path, batch_size=32, num_epochs=1, learning_rate=1e-4) 
 
