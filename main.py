@@ -160,14 +160,7 @@ processed_data_dirs = [
     os.path.join(datasets_dir, "processed/Task08_HepaticVessel/imagesTs")
 ]
 
-liver_labels_dir = os.path.join(datasets_dir,"raw/Task03_Liver/labelsTr")
-liver_train_dir = os.path.join(datasets_dir,"raw/Task03_Liver/imagesTr")
 
-vessels_labels_dir = os.path.join(datasets_dir,"raw/Task08_HepaticVessel/labelsTr")
-vessels_train_dir = os.path.join(datasets_dir,"processed/Task08_HepaticVessel/imagesTr")
-
-liver_model_save_path = os.path.join(output_dir, "liver_model_real2.pth")
-vessel_model_save_path = os.path.join(output_dir, "vessel_model.pth")
 
 flag_dir = os.path.join(datasets_dir, 'flag.txt')
 
@@ -184,6 +177,13 @@ else:
 print_directory_structure(download_dir)
 
 pre_model_path = os.path.join(output_dir, "liver_model_real.pth")
+liver_labels_dir = os.path.join(datasets_dir,"raw/Task03_Liver/labelsTr")
+liver_train_dir = os.path.join(datasets_dir,"raw/Task03_Liver/imagesTr")
 
-train_model(liver_train_dir, liver_labels_dir, liver_model_save_path, batch_size=192, num_epochs=1, learning_rate=1e-4, preloaded_model_path=None) 
+vessels_labels_dir = os.path.join(datasets_dir,"raw/Task08_HepaticVessel/labelsTr")
+vessels_train_dir = os.path.join(datasets_dir,"processed/Task08_HepaticVessel/imagesTr")
+
+liver_model_save_path = os.path.join(output_dir, "liver_model_real3.pth")
+vessel_model_save_path = os.path.join(output_dir, "vessel_model.pth")
+train_model(liver_train_dir, liver_labels_dir, liver_model_save_path, batch_size=192, num_epochs=15, learning_rate=1e-4, preloaded_model_path=None) 
 
