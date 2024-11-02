@@ -181,9 +181,9 @@ else:
     print('Data already processed')
 
 
-#print_directory_structure(download_dir)
+print_directory_structure(download_dir)
 
 pre_model_path = os.path.join(output_dir, "liver_model_real.pth")
 
-train_model(liver_train_dir, liver_labels_dir, liver_model_save_path, batch_size=128, num_epochs=1, learning_rate=1e-4, preloaded_model_path=None) 
+train_model(liver_train_dir, liver_labels_dir, liver_model_save_path, batch_size=192, num_epochs=1, learning_rate=1e-4, preloaded_model_path=None) 
 
