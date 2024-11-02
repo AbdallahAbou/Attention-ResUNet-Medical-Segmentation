@@ -1,6 +1,7 @@
 import nibabel as nib
 import numpy as np
 import os
+import json
 
 def load_nifti_file(file_path):
     """
@@ -74,3 +75,26 @@ def process_all_data(input_dirs, output_dirs):
     # Process each input directory and save to corresponding output directory
     for input_dir, output_dir in zip(input_dirs, output_dirs):
         process_files(input_dir, output_dir)
+
+def save_images_under_300_slices(image_dir, output_file, slice_threshold=300):
+    # List to store names of images with fewer than 300 slices
+    images_under_threshold = []
+
+    # Loop through each file in the directory
+    for file_name in sorted(os.listdir(image_dir)):
+        if not file_name.startswith('._') and file_name.endswith(".nii.gz"):
+            # Load the image to check its slice count
+            file_path = os.path.join(image_dir, file_name)
+            image = nib.load(file_path).get_fdata()
+
+            # Check the number of slices (assumes the third dimension is slice count)
+            num_slices = image.shape[2]
+            if num_slices < slice_threshold:
+                images_under_threshold.append(file_name)
+
+    # Save the list of files to a JSON file for future use
+    with open(output_file, 'w') as f:
+        json.dump(images_under_threshold, f)
+
+    print(f"Saved {len(images_under_threshold)} images with fewer than {slice_threshold} slices to {output_file}.")
+
