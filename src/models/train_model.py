@@ -60,7 +60,8 @@ def train_model(images_dir, labels_dir, model_save_path, batch_size=4, num_epoch
 
     # Model, optimizer, and loss function
     model = AttentionResUNet(in_channels=1, out_channels=3, init_features=8).to(device)
-    model.load_state_dict(torch.load(preloaded_model_path))
+    if preloaded_model_path is not None:
+        model.load_state_dict(torch.load(preloaded_model_path))
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
     criterion = DiceLoss(to_onehot_y=True, softmax=True)
     dice_metric = DiceMetric(include_background=False, reduction="mean_batch", get_not_nans=False, ignore_empty=False, num_classes=3)
