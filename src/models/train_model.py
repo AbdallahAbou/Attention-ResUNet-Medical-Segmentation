@@ -4,19 +4,16 @@ from torch.utils.data import DataLoader
 from src.data.data_loader import MedicalSliceDataset
 from monai.losses import DiceLoss
 from monai.metrics import DiceMetric
+from monai.networks.utils import one_hot
 from torch.amp import autocast, GradScaler
 from src.models.attention_res_unet import AttentionResUNet
 from torch.utils.data import random_split
 import time
 import random
 import os
+import json
 
-
-
-
-
-
-def train_model(images_dir, labels_dir, model_save_path, batch_size=4, num_epochs=1, learning_rate=1e-4):
+def train_model(images_dir, labels_dir, model_save_path, batch_size=4, num_epochs=1, learning_rate=1e-4, preloaded_model_path=None):
     """
     Trains the AttentionResUNet model with the provided datasets.
 
@@ -33,12 +30,15 @@ def train_model(images_dir, labels_dir, model_save_path, batch_size=4, num_epoch
     # Device setup
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Using device: {torch.cuda.get_device_name(0)}")
-
+    with open(os.path.join(images_dir, 'images_under_300_slices.json'), 'r') as f:
+        all_images_under_300 = json.load(f)
+    #ids_list_ = random.sample(all_images_under_300, 30)
+    ids_list_ = all_images_under_300
     # Dataset and DataLoader
-    ids_list_ = []
-    for file in sorted(os.listdir(images_dir)):
-        if not file.startswith('._') and file.endswith(".nii.gz"): 
-            ids_list_.append(file)
+    #ids_list_ = []
+    #for file in sorted(os.listdir(images_dir)):
+    #    if not file.startswith('._') and file.endswith(".nii.gz"): 
+    #        ids_list_.append(file)
 
     random.seed(42) 
     random.shuffle(ids_list_)
@@ -48,23 +48,28 @@ def train_model(images_dir, labels_dir, model_save_path, batch_size=4, num_epoch
     val_ids = ids_list_[train_size:]
     print(f"Training Set length: {len(train_ids)}/{len(ids_list_)}" )
     print(f"Validation Set length: {len(val_ids)}/{len(ids_list_)}" )
+    print("Training IDs:", train_ids)
+    print("Validation IDs:", val_ids)
 
     train_dataset = MedicalSliceDataset(image_dir=images_dir, label_dir=labels_dir, ids_list=train_ids)
     val_dataset = MedicalSliceDataset(image_dir=images_dir, label_dir=labels_dir, ids_list=val_ids)
 
 
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=8, drop_last=True)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers=8, drop_last=True)
+    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=8, drop_last=True)
 
     # Model, optimizer, and loss function
-    model = AttentionResUNet(in_channels=1, out_channels=3, init_features=16).to(device)
+    model = AttentionResUNet(in_channels=1, out_channels=3, init_features=8).to(device)
+    model.load_state_dict(torch.load(preloaded_model_path))
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
     criterion = DiceLoss(to_onehot_y=True, softmax=True)
-    dice_metric = DiceMetric(include_background=False, reduction="mean", get_not_nans=True, num_classes=3)
+    dice_metric = DiceMetric(include_background=False, reduction="mean_batch", get_not_nans=False, ignore_empty=False, num_classes=3)
     scaler = GradScaler('cuda')
 
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=3, verbose=True)
+
     best_val_loss = float('inf')
-    patience = 7  # Number of epochs to wait before stopping
+    patience = 5  # Number of epochs to wait before stopping
     trigger_times = 0
 
     for epoch in range(num_epochs):
@@ -90,7 +95,7 @@ def train_model(images_dir, labels_dir, model_save_path, batch_size=4, num_epoch
 
             train_loss += loss.item()
             end_iter = time.time()
-            #print(f"Iteration {i+1}/{len(train_loader)}, Elapsed time: {end_iter - start_epoch:.4f} seconds")
+            print(f"Iteration {i+1}/{len(train_loader)}, Elapsed time: {end_iter - start_epoch:.4f} seconds")
 
         end_epoch = time.time()
         avg_train_loss = train_loss / len(train_loader)
@@ -101,36 +106,44 @@ def train_model(images_dir, labels_dir, model_save_path, batch_size=4, num_epoch
         with torch.no_grad():
             for images, labels in val_loader:
                 images = images.to(device)
-                labels = labels.to(device)
+                labels = labels.to(device).long()
 
                 outputs = model(images)
-                loss = criterion(outputs, labels)
-                val_loss += loss.item()
+                loss_ = criterion(outputs, labels)
+                val_loss += loss_.item()
 
                 outputs_softmax = torch.softmax(outputs, dim=1)
-                #print('Label shape before one hot:', labels.shape)
                 # One-hot encode labels
-                labels_one_hot = torch.nn.functional.one_hot(labels.squeeze(1), num_classes=3)
-                #print('Label shape after one hot:', labels_one_hot.shape)
-                labels_one_hot = labels_one_hot.permute(0, 3, 1, 2).float()
-                #print('Label shape after permute:', labels_one_hot.shape)
-                dice_metric(outputs_softmax, labels_one_hot)
+                labels_one_hot = one_hot(labels, num_classes=3)
+                dice_metric(y_pred=outputs_softmax, y=labels_one_hot)
 
         avg_val_loss = val_loss / len(val_loader)
-        dice_score, not_nans = dice_metric.aggregate()#[0].item()
-
-        print(f"Epoch [{epoch+1}/{num_epochs}], Train Loss: {avg_train_loss:.4f}, Val Loss: {avg_val_loss:.4f}, Dice score: {dice_score}, Time: {end_epoch - start_epoch:.2f}s")
-        
+        dice_scores = dice_metric.aggregate()
         dice_metric.reset()
+
+        print(f"Epoch [{epoch+1}/{num_epochs}], Train Loss: {avg_train_loss:.4f}, Val Loss: {avg_val_loss:.4f}, Dice scores: {dice_scores}, Time: {end_epoch - start_epoch:.2f}s")
+
+    
+        scheduler.step(avg_val_loss)
 
         if avg_val_loss < best_val_loss:
             best_val_loss = avg_val_loss
             trigger_times = 0
-
+            torch.save({
+                'epoch': epoch,
+                'model_state_dict': model.state_dict(),
+                'optimizer_state_dict': optimizer.state_dict(),
+                'loss': avg_val_loss,
+            }, model_save_path)
         else:
             trigger_times += 1
             if trigger_times >= patience:
                 print('Early stopping!')
                 break
-    torch.save(model.state_dict(), model_save_path)
+    torch.save({
+        'epoch': epoch+1,
+        'model_state_dict': model.state_dict(),
+        'optimizer_state_dict': optimizer.state_dict(),
+        'loss': avg_val_loss,
+    }, model_save_path)
 
