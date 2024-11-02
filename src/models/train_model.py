@@ -42,11 +42,11 @@ def train_model(images_dir, labels_dir, model_save_path, batch_size=4, num_epoch
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Using device: {torch.cuda.get_device_name(0)}")
     json_300 = os.path.join(images_dir, 'images_under_300_slices.json') 
-    #save_images_under_300_slices(images_dir, json_300)
+    save_images_under_300_slices(images_dir, json_300)
     with open(json_300, 'r') as f:
         all_images_under_300 = json.load(f)
     ids_list_ = all_images_under_300
-    ids_list_ = random.sample(all_images_under_300, 15)
+    #ids_list_ = random.sample(all_images_under_300, 15)
     # Dataset and DataLoader
     #ids_list_ = []
     #for file in sorted(os.listdir(images_dir)):
@@ -112,7 +112,7 @@ def train_model(images_dir, labels_dir, model_save_path, batch_size=4, num_epoch
 
             train_loss += loss.item()
             end_iter = time.time()
-            print(f"Iteration {i+1}/{len(train_loader)}, Elapsed time: {end_iter - start_epoch:.4f} seconds")
+            #print(f"Iteration {i+1}/{len(train_loader)}, Elapsed time: {end_iter - start_epoch:.4f} seconds")
         #print(f"Training loop: Image shape : {images.shape}, Labels shape : {labels.shape}")
 
         end_epoch = time.time()
