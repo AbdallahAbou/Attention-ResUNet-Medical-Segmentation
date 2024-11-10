@@ -190,4 +190,4 @@ vessel_model_save_path = os.path.join(output_dir, "vessel_model_32_8.pth")
 
 #train_model(liver_train_dir, liver_labels_dir, liver_model_save_path, batch_size=32, num_epochs=60, learning_rate=1e-4) 
 
-train_model(liver_train_dir, liver_labels_dir, liver_model_save_path, batch_size=168, num_epochs=50, learning_rate=1e-4) 
+train_model(liver_train_dir, liver_labels_dir, liver_model_save_path, batch_size=128, num_epochs=50, learning_rate=1e-4) 
