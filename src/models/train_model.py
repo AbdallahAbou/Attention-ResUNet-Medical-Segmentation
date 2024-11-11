@@ -69,7 +69,7 @@ def train_model(images_dir, labels_dir, model_save_path, batch_size=4, num_epoch
     with open(json_300, 'r') as f:
         all_images_under_300 = json.load(f)
     ids_list_ = all_images_under_300
-    #ids_list_ = random.sample(all_images_under_300, 15)
+    #ids_list_ = random.sample(all_images_under_300, 3)
 
     # Dataset and DataLoader
     #ids_list_ = []
@@ -97,7 +97,7 @@ def train_model(images_dir, labels_dir, model_save_path, batch_size=4, num_epoch
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=8, drop_last=True)
 
     # Model, optimizer, and loss function
-    model = AttentionResUNet(in_channels=1, out_channels=3, init_features=32).to(device)
+    model = AttentionResUNet(in_channels=1, out_channels=3, init_features=16).to(device)
 
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
     Dice_criterion = DiceLoss(to_onehot_y=True, softmax=True)
