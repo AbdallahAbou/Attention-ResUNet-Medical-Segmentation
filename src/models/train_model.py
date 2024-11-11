@@ -65,7 +65,7 @@ def train_model(images_dir, labels_dir, model_save_path, batch_size=4, num_epoch
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Using device: {torch.cuda.get_device_name(0)}")
     json_300 = os.path.join(images_dir, 'images_under_300_slices.json') 
-    #save_images_under_300_slices(images_dir, json_300, slice_threshold=300)
+    save_images_under_300_slices(images_dir, json_300, slice_threshold=300)
     with open(json_300, 'r') as f:
         all_images_under_300 = json.load(f)
     ids_list_ = all_images_under_300
