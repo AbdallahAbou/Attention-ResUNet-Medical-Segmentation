@@ -1,5 +1,5 @@
 import torch
-from AttentionResUnet import AttentionResUNet
+from modules.AttentionResUnet import AttentionResUNet
 
 # Global variables that will be accessed from the main application
 liver_model = None

@@ -52,7 +52,6 @@ liver_model = None
 vessel_model = None
 device = None
 
-# Fixed model paths
 LIVER_MODEL_PATH = "models/liver_model_classification.pth"
 VESSEL_MODEL_PATH = "models/vessel_model_classification_16.pth"
 
