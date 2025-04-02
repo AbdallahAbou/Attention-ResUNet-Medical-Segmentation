@@ -68,6 +68,9 @@ def update_display():
     normalized = ((slice_data - np.min(slice_data)) / 
                  (np.max(slice_data) - np.min(slice_data)) * 255).astype(np.uint8)
     
+    # Flip the image 90 degrees to the right (rotate clockwise)
+    normalized = np.rot90(normalized, k=1)
+    
     # Convert to Base64-encoded PNG
     from PIL import Image
     import io
@@ -103,7 +106,8 @@ with SinglePageLayout(server) as layout:
             # Image display section
             with vuetify.VRow(v_if="has_image", justify="center", classes="mt-4"):
                 with vuetify.VCol(cols=12, sm=10, md=8):
-                    with vuetify.VCard():
+                    # Only change: the VCard is now styled to be 50% width
+                    with vuetify.VCard(style="width: 50%; margin: auto;"):
                         with vuetify.VCardTitle():
                             html.Span("CT Image View")
                         with vuetify.VCardText():
